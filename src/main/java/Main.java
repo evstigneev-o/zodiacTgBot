@@ -5,7 +5,8 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class Main {
     public static void main(String[] args) throws TelegramApiException {
         String botToken = {BOT_TOKEN};
+        String botName = {BOT_NAME};
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-        telegramBotsApi.registerBot(new ZodiacTgBot(botToken));
+        telegramBotsApi.registerBot(new ZodiacTgBot(botToken, botName));
     }
 }

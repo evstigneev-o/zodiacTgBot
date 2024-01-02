@@ -5,10 +5,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class ZodiacTgBot extends TelegramLongPollingBot {
-    public final static String BOT_NAME = {TG_BOT_NAME};
+    private final String botName;
 
-    public ZodiacTgBot(String botToken) {
+    public ZodiacTgBot(String botToken, String botName) {
         super(botToken);
+        this.botName = botName;
     }
 
 
@@ -40,7 +41,7 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return BOT_NAME;
+        return botName;
     }
 
     private void sendMessage(Long chatId, String text) {

@@ -5,7 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class ZodiacTgBot extends TelegramLongPollingBot {
-    public final static String BOT_NAME = "mrZodiac_bot";
+    public final static String BOT_NAME = {TG_BOT_NAME};
 
     public ZodiacTgBot(String botToken) {
         super(botToken);

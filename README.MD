@@ -7,7 +7,7 @@
 1. **Запуск бота:**
     - Зарегистрируйте бота с помощью BotFather в Telegram.
     - Замените значение `BOT_TOKEN` `BOT_NAME` вашим токеном и именем бота.
-    - Запустите Main
+    - Запустите main
 
 ```java
 public class Main {

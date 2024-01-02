@@ -38,7 +38,7 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
         if ("\\d{2}\\.\\d{2}".matches(text)) {
             int day = Integer.parseInt(text.substring(0, text.indexOf('.')));
             int month = Integer.parseInt(text.substring(text.indexOf('.') + 1));
-            System.out.println("Знак зодиака: " + getZodiacName(day,month));
+            System.out.println("Знак зодиака: " + ZodiacUtils.getZodiacName(day,month));
         } else {
             SendMessage sendMessage = SendMessage.builder()
                     .text("Введите дату в формате DD.MM для определения знака зодиака")

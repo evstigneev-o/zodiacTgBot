@@ -38,5 +38,5 @@ public class ZodiacUtils {
         }
         throw new IllegalArgumentException("Day:" + day + " Month:" + month);
     }
-
 }
+

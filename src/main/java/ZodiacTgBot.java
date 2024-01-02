@@ -24,44 +24,34 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
         }
         String text = message.getText();
         if ("/start".equals(text)) {
-            SendMessage sendMessage = SendMessage.builder()
-                    .text("Введите дату в формате DD.MM для определения знака зодиака")
-                    .chatId(message.getChatId())
-                    .build();
-            try {
-                execute(sendMessage);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
+            sendMessage(message.getChatId(), "Привет. Я помогу определить твой знак зодиака");
+            sendMessage(message.getChatId(), "Введите дату рождения в формате DD.MM для определения знака зодиака");
             return;
         }
         if (text.matches("^(0[1-9]|[12][0-9]|3[01])\\.(0[1-9]|1[0-2])$")) {
             int day = Integer.parseInt(text.substring(0, text.indexOf('.')));
             int month = Integer.parseInt(text.substring(text.indexOf('.') + 1));
-            SendMessage sendMessage = SendMessage.builder()
-                    .text("Ваш знак зодиака: " + ZodiacUtils.getZodiacName(day,month))
-                    .chatId(message.getChatId())
-                    .build();
-            try {
-                execute(sendMessage);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
+            sendMessage(message.getChatId(), "Ваш знак зодиака: " + ZodiacUtils.getZodiacName(day,month));
         } else {
-            SendMessage sendMessage = SendMessage.builder()
-                    .text("Введенная дата \"" + text + "\" не соответствует формату DD.MM Введите дату в требуемом формате")
-                    .chatId(message.getChatId())
-                    .build();
-            try {
-                execute(sendMessage);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
+            sendMessage(message.getChatId(), "Введенная дата \"" + text + "\" не соответствует формату DD.MM");
+            sendMessage(message.getChatId(), "Введите дату в требуемом формате");
         }
     }
 
     @Override
     public String getBotUsername() {
         return BOT_NAME;
+    }
+
+    private void sendMessage(Long chatId, String text) {
+        SendMessage message = SendMessage.builder()
+                .text(text)
+                .chatId(chatId)
+                .build();
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -35,13 +35,21 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
             }
             return;
         }
-        if ("\\d{2}\\.\\d{2}".matches(text)) {
+        if (text.matches("^(0[1-9]|[12][0-9]|3[01])\\.(0[1-9]|1[0-2])$")) {
             int day = Integer.parseInt(text.substring(0, text.indexOf('.')));
             int month = Integer.parseInt(text.substring(text.indexOf('.') + 1));
-            System.out.println("Знак зодиака: " + ZodiacUtils.getZodiacName(day,month));
+            SendMessage sendMessage = SendMessage.builder()
+                    .text("Ваш знак зодиака: " + ZodiacUtils.getZodiacName(day,month))
+                    .chatId(message.getChatId())
+                    .build();
+            try {
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             SendMessage sendMessage = SendMessage.builder()
-                    .text("Введите дату в формате DD.MM для определения знака зодиака")
+                    .text("Введенная дата \"" + text + "\" не соответствует формату DD.MM Введите дату в требуемом формате")
                     .chatId(message.getChatId())
                     .build();
             try {

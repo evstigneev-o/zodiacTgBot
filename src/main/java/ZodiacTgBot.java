@@ -130,8 +130,8 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
             for (int j = 0; j < 5; j++) {
                 int day = i + j * 7 + 1;
 
-                String buttonText = day <= month.maxLength() ? String.valueOf(day) : "x";
-                String buttonData = day <= month.maxLength() ? String.format("%02d.%02d", day, month.getValue()) : "x";
+                String buttonText = day <= month.maxLength() ? String.valueOf(day) : " ";
+                String buttonData = day <= month.maxLength() ? String.format("%02d.%02d", day, month.getValue()) : " ";
                 InlineKeyboardButton button = InlineKeyboardButton.builder()
                         .text(buttonText)
                         .callbackData(buttonData)

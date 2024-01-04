@@ -2,6 +2,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -74,11 +75,22 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
 
         if (selectedMonth != null) {
             sendMessage(callbackQuery.getMessage().getChatId(), "Вы выбрали месяц: " + getRusMonthName(selectedMonth));
+
+            try {
+                execute(DeleteMessage.builder()
+                        .chatId(callbackQuery.getMessage().getChatId())
+                        .messageId(callbackQuery.getMessage().getMessageId())
+                        .build());
+            } catch (Exception ignored) {
+
+            }
+
             sendKeyboard(callbackQuery.getMessage().getChatId(), "Выберите день рождения: ", selectDayOfMonthKeyboard(selectedMonth));
         }
         if (callbackQuery.getData().matches("^(0[1-9]|[12][0-9]|3[01])\\.(0[1-9]|1[0-2])$")) {
             int day = Integer.parseInt(callbackQuery.getData().substring(0, callbackQuery.getData().indexOf('.')));
             int month = Integer.parseInt(callbackQuery.getData().substring(callbackQuery.getData().indexOf('.') + 1));
+            deleteMessage(callbackQuery);
             sendMessage(callbackQuery.getMessage().getChatId(), "Ваш знак зодиака: " + ZodiacUtils.getZodiacName(day, month));
         }
 
@@ -154,6 +166,16 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
             execute(message);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void deleteMessage(CallbackQuery callbackQuery) {
+        try {
+            execute(DeleteMessage.builder()
+                    .chatId(callbackQuery.getMessage().getChatId())
+                    .messageId(callbackQuery.getMessage().getMessageId())
+                    .build());
+        } catch (Exception ignored) {
         }
     }
 

@@ -43,15 +43,6 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
         if ("/start".equals(text)) {
             sendMessage(message.getChatId(), "Привет. Я помогу определить твой знак зодиака");
             sendKeyboard(message.getChatId(), "Выбери месяц твоего рождения:", selectMonthKeyboard());
-            return;
-        }
-        if (text.matches("^(0[1-9]|[12][0-9]|3[01])\\.(0[1-9]|1[0-2])$")) {
-            int day = Integer.parseInt(text.substring(0, text.indexOf('.')));
-            int month = Integer.parseInt(text.substring(text.indexOf('.') + 1));
-            sendMessage(message.getChatId(), "Ваш знак зодиака: " + ZodiacUtils.getZodiacName(day, month));
-        } else {
-            sendMessage(message.getChatId(), "Введенная дата \"" + text + "\" не соответствует формату DD.MM");
-            sendMessage(message.getChatId(), "Введите дату в требуемом формате");
         }
     }
 
@@ -67,6 +58,13 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
         if (callbackQuery.getData() == null) {
             return;
         }
+
+        if (callbackQuery.getData().equals("again")) {
+            sendKeyboard(callbackQuery.getMessage().getChatId(), "Выбери месяц твоего рождения:", selectMonthKeyboard());
+            deleteMessage(callbackQuery);
+            return;
+        }
+
         Month selectedMonth = null;
         try {
             selectedMonth = Month.valueOf(callbackQuery.getData());
@@ -91,8 +89,11 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
             int day = Integer.parseInt(callbackQuery.getData().substring(0, callbackQuery.getData().indexOf('.')));
             int month = Integer.parseInt(callbackQuery.getData().substring(callbackQuery.getData().indexOf('.') + 1));
             deleteMessage(callbackQuery);
+            sendMessage(callbackQuery.getMessage().getChatId(), "Вы выбрали день: " + day);
             sendMessage(callbackQuery.getMessage().getChatId(), "Ваш знак зодиака: " + ZodiacUtils.getZodiacName(day, month));
+            sendKeyboard(callbackQuery.getMessage().getChatId(), "Попробовать еще?", tryAgainKeyboard());
         }
+
 
     }
 
@@ -142,6 +143,15 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
         return InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRows)
                 .build();
+    }
+
+    private static ReplyKeyboard tryAgainKeyboard(){
+    return InlineKeyboardMarkup.builder()
+            .keyboard(List.of(List.of(InlineKeyboardButton.builder()
+                    .text("Попробовать еще раз")
+                    .callbackData("again")
+                    .build())))
+            .build();
     }
 
     private void sendMessage(Long chatId, String text) {

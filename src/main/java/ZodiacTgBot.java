@@ -24,14 +24,13 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
         this.botName = botName;
     }
 
-
     @Override
     public void onUpdateReceived(Update update) {
         System.out.println(update);
         if (!update.hasMessage() && !update.hasCallbackQuery()) {
             return;
         }
-        if(update.hasCallbackQuery()){
+        if (update.hasCallbackQuery()) {
             processCallbackQuery(update.getCallbackQuery());
             return;
         }
@@ -42,7 +41,7 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
         String text = message.getText();
         if ("/start".equals(text)) {
             sendMessage(message.getChatId(), "Привет. Я помогу определить твой знак зодиака");
-            sendKeyboard(message.getChatId(), "Выбери месяц твоего рождения:" ,selectMonthKeyboard());
+            sendKeyboard(message.getChatId(), "Выбери месяц твоего рождения:", selectMonthKeyboard());
             return;
         }
         if (text.matches("^(0[1-9]|[12][0-9]|3[01])\\.(0[1-9]|1[0-2])$")) {
@@ -57,15 +56,32 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
 
     private void processCallbackQuery(CallbackQuery callbackQuery) {
         System.out.println(callbackQuery.getData());
-        try{
+        try {
             AnswerCallbackQuery.builder()
                     .callbackQueryId(callbackQuery.getId())
                     .build();
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        Month selectedMonth = Month.valueOf(callbackQuery.getData());
-        sendMessage(callbackQuery.getMessage().getChatId(), "Вы выбрали месяц: " + getRusMonthName(selectedMonth));
+        if (callbackQuery.getData() == null) {
+            return;
+        }
+        Month selectedMonth = null;
+        try {
+            selectedMonth = Month.valueOf(callbackQuery.getData());
+        } catch (Exception ignored) {
+        }
+
+        if (selectedMonth != null) {
+            sendMessage(callbackQuery.getMessage().getChatId(), "Вы выбрали месяц: " + getRusMonthName(selectedMonth));
+            sendKeyboard(callbackQuery.getMessage().getChatId(), "Выберите день рождения: ", selectDayOfMonthKeyboard(selectedMonth));
+        }
+        if (callbackQuery.getData().matches("^(0[1-9]|[12][0-9]|3[01])\\.(0[1-9]|1[0-2])$")) {
+            int day = Integer.parseInt(callbackQuery.getData().substring(0, callbackQuery.getData().indexOf('.')));
+            int month = Integer.parseInt(callbackQuery.getData().substring(callbackQuery.getData().indexOf('.') + 1));
+            sendMessage(callbackQuery.getMessage().getChatId(), "Ваш знак зодиака: " + ZodiacUtils.getZodiacName(day, month));
+        }
+
     }
 
     @Override
@@ -88,6 +104,28 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
                     .callbackData(month2.name())
                     .build();
             keyboardRows.add(List.of(keyboardButton1, keyboardButton2));
+        }
+        return InlineKeyboardMarkup.builder()
+                .keyboard(keyboardRows)
+                .build();
+    }
+
+    private static ReplyKeyboard selectDayOfMonthKeyboard(Month month) {
+        List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>(6);
+        for (int i = 0; i < 7; i++) {
+            List<InlineKeyboardButton> keyboardButtons = new ArrayList<>(5);
+            for (int j = 0; j < 5; j++) {
+                int day = i + j * 7 + 1;
+
+                String buttonText = day <= month.maxLength() ? String.valueOf(day) : "x";
+                String buttonData = day <= month.maxLength() ? String.format("%02d.%02d", day, month.getValue()) : "x";
+                InlineKeyboardButton button = InlineKeyboardButton.builder()
+                        .text(buttonText)
+                        .callbackData(buttonData)
+                        .build();
+                keyboardButtons.add(button);
+            }
+            keyboardRows.add(keyboardButtons);
         }
         return InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRows)
@@ -119,7 +157,7 @@ public class ZodiacTgBot extends TelegramLongPollingBot {
         }
     }
 
-    private static String getRusMonthName(Month month){
+    private static String getRusMonthName(Month month) {
         return StringUtils.capitalize(month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.forLanguageTag("ru")));
     }
 }
